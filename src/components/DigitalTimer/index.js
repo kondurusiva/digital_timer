@@ -15,7 +15,7 @@ class DigitalTimer extends Component {
     this.clearTimerInterval()
   }
 
-  clearTimerInterval = () => clearInterval()
+  clearTimerInterval = () => clearInterval(this.intervalId)
 
   getElapsedSecondsInTimeFormat = () => {
     const {timeElapsedInSeconds, timerLimitInMinutes} = this.state
@@ -49,7 +49,7 @@ class DigitalTimer extends Component {
       timeElapsedInSeconds,
       timerLimitInMinutes,
     } = this.state
-    const completeTime = timerLimitInMinutes * 60 === timeElapsedInSeconds
+    const completeTime = timeElapsedInSeconds === timerLimitInMinutes * 60
 
     if (completeTime) {
       this.setState({timeElapsedInSeconds: 0})
@@ -65,9 +65,9 @@ class DigitalTimer extends Component {
   renderTimerController = () => {
     const {isTimeRunning} = this.state
     const playOrPause = isTimeRunning
-      ? 'https://assets.ccbp.in/frontend/react-js/play-icon-img.png'
-      : 'https://assets.ccbp.in/frontend/react-js/pause-icon-img.png'
-    const altText = isTimeRunning ? 'play icon' : 'pause icon'
+      ? 'https://assets.ccbp.in/frontend/react-js/pause-icon-img.png'
+      : 'https://assets.ccbp.in/frontend/react-js/play-icon-img.png'
+    const altText = isTimeRunning ? 'pause icon' : 'play icon'
 
     return (
       <div className="timer-controller-container">
@@ -77,7 +77,7 @@ class DigitalTimer extends Component {
           type="button"
         >
           <img src={playOrPause} alt={altText} className="pause-img" />
-          <p>{isTimeRunning ? 'Start' : 'Pause'}</p>
+          <p>{isTimeRunning ? 'Pause' : 'Start'}</p>
         </button>
         <button className="reset" onClick={this.onResetTimer} type="button">
           <img
@@ -92,15 +92,19 @@ class DigitalTimer extends Component {
   }
 
   onClickIncrement = () => {
-    const {timerLimitInMinutes} = this.state
-
-    this.setState({timerLimitInMinutes: timerLimitInMinutes + 1})
+    this.setState(prevState => ({
+      timerLimitInMinutes: prevState.timerLimitInMinutes + 1,
+    }))
   }
 
   onClickDecrement = () => {
     const {timerLimitInMinutes} = this.state
 
-    this.setState({timerLimitInMinutes: timerLimitInMinutes - 1})
+    if (timerLimitInMinutes > 1) {
+      this.setState(prevState => ({
+        timerLimitInMinutes: prevState.timerLimitInMinutes - 1,
+      }))
+    }
   }
 
   onResetTimer = () => {
@@ -142,12 +146,14 @@ class DigitalTimer extends Component {
     const labelText = isTimeRunning ? 'Running' : 'Paused'
     return (
       <div className="app-container">
-        <h1>Digital Timer</h1>
+        <h1 className="heading">Digital Timer</h1>
         <div className="digital-container">
           <div className="timer-display-container">
             <div className="elapsed-time-container">
-              <h1>{this.getElapsedSecondsInTimeFormat()}</h1>
-              <p>{labelText}</p>
+              <h1 className="display-time">
+                {this.getElapsedSecondsInTimeFormat()}
+              </h1>
+              <p className="timer-state">{labelText}</p>
             </div>
           </div>
           <div className="controls-container">
